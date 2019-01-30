@@ -1,0 +1,5 @@
+elasticsearch:
+  index: 'hedvig'
+  hosts:
+    - 'localhost'
+
