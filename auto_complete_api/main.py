@@ -2,6 +2,7 @@ from gevent import monkey; monkey.patch_all()
 
 import os
 import yaml
+import json
 import logging
 import werkzeug.exceptions
 
@@ -10,21 +11,22 @@ from gevent import pywsgi
 
 import auto_complete_api.services as services
 import auto_complete_api.endpoints as endpoints
-import auto_complete_api.flask_utils as helpers
 
 
 app = Flask('autocomplete_api')
 logger = logging.getLogger('main')
 
 
-@app.errorhandler(404)
-@app.errorhandler(500)
-@helpers.json_serialize()
+@app.errorhandler(werkzeug.exceptions.HTTPException)
 def error_404(error:werkzeug.exceptions.HTTPException):
-    return {
-        'status': 'error',
-        'payload': {'stats_code':error.code, 'message':error.description}
-    }
+    return (
+        json.dumps({
+            'status': 'error',
+            'payload': {'status_code':error.code, 'message':error.description}
+        }).encode('utf-8'),
+        error.code,
+        {'Content-Type': 'application/json; charset=utf-8'}
+    )
 
 
 def main():

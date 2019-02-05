@@ -22,6 +22,7 @@ def autocomplete_query(query):
 
 
 def autocomplete_choice():
+    body = request.json
     return 'Not Implemented'
 
 
