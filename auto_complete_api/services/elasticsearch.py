@@ -1,9 +1,15 @@
 from operator import itemgetter
 
+import time
+import hashlib
 import nltk
 import emoji
+import logging
 import elasticsearch
 from elasticsearch_dsl import Search
+
+
+logger = logging.getLogger('es-service')
 
 
 def sentence_split(text:str):
@@ -24,6 +30,38 @@ class ElasticSearch(object):
     def __init__(self, hosts, index):
         self._index = index
         self._client = elasticsearch.Elasticsearch(hosts=hosts)
+
+    def wait_for_cluster(self, timeout=10):
+        level = logging.getLogger('elasticsearch').level
+        logging.getLogger('elasticsearch').setLevel(logging.ERROR)
+
+        try:
+            logger.info('Checking cluster availability')
+
+            start_time = time.time()
+            while (time.time()-start_time) < timeout:
+                if self._client.ping():
+                    logger.info('Cluster is up!')
+                    return
+
+                logger.info('Cluster is not yet up')
+                time.sleep(1)
+
+            raise TimeoutError('ES cluster is not available!')
+        finally:
+            logging.getLogger('elasticsearch').setLevel(level)
+
+    def create_index(self):
+        es = self._client
+        index = self._index
+
+        if es.indices.exists(index):
+            logger.info('Index {} exists'.format(index))
+            return
+
+        logger.info('Attempting to create index {}'.format(index))
+        self._client.indices.create(index=self._index)
+        logger.info('Index created')
 
     def autocomplete(self, query):
         def fix_query(query: str):
@@ -66,4 +104,21 @@ class ElasticSearch(object):
         )
 
     def add(self, docs):
-        pass
+        logger.info('Adding {} new documents to index'.format(len(docs)))
+
+        for doc in docs:
+            for sentence in sentence_split(doc):
+                if len(sentence) < 2:
+                    continue
+
+                md5 = hashlib.md5()
+                md5.update(sentence.lower().encode('utf-8'))
+
+                self._client.index(
+                    index=self._index,
+                    doc_type='chat_replies',
+                    id = md5.hexdigest(),
+                    body={'text':sentence}
+                )
+
+        logger.info('Documents added')
