@@ -2,6 +2,7 @@ from operator import itemgetter
 
 import time
 import hashlib
+import certifi
 import nltk
 import emoji
 import logging
@@ -29,7 +30,11 @@ def sentence_split(text:str):
 class ElasticSearch(object):
     def __init__(self, hosts, index):
         self._index = index
-        self._client = elasticsearch.Elasticsearch(hosts=hosts)
+        self._client = elasticsearch.Elasticsearch(
+            hosts=hosts,
+            use_ssl='https' in ','.join(hosts),
+            ca_certs=certifi.where()
+        )
         logger.info('Using the following hosts: {}'.format(', '.join(hosts)))
 
     def wait_for_cluster(self, timeout=10):
