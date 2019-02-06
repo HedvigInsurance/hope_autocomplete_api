@@ -17,7 +17,7 @@ setup(
         'Flask==1.0.2',
         'gevent==1.4.0',
         'nltk==3.4',
-        'PyYAML==3.13',
+        'pyyaml==4.2b2',
         'certifi==2018.11.29'
     ],
     extras_require={

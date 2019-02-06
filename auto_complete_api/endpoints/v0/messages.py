@@ -21,6 +21,7 @@ def autocomplete_query(query):
     return service.autocomplete(query)
 
 
+@helpers.accepts('application/json')
 def autocomplete_choice():
     body = request.json
     return 'Not Implemented'
