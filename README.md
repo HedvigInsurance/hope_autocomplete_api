@@ -2,17 +2,17 @@
 
 # Starting
  ```bash
-docker-compose up
+> docker-compose up
 ``` 
 
 # Add messages
 ```bash
- curl -XPOST -H 'Content-type: application/json' -d @hope_replies.json  http://localhost:5000/v0/messages/
+ > curl -XPOST -H 'Content-type: application/json' -d @hope_replies.json  http://localhost:5000/v0/messages/
 ``` 
 
 # Autocomplete query
 ```bash
- (venv) alim@alim-xps:~/work/hedvig/chat_autocomplete$ curl http://localhost:5000/v0/messages/autocomplete?query=tac 2>/dev/null | jq
+ > curl http://localhost:5000/v0/messages/autocomplete?query=tac 2>/dev/null | jq
 
 [
   {
