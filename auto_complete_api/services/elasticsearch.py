@@ -30,6 +30,7 @@ class ElasticSearch(object):
     def __init__(self, hosts, index):
         self._index = index
         self._client = elasticsearch.Elasticsearch(hosts=hosts)
+        logger.info('Using the following hosts: {}'.format(', '.join(hosts)))
 
     def wait_for_cluster(self, timeout=10):
         level = logging.getLogger('elasticsearch').level

@@ -18,23 +18,25 @@ logger = logging.getLogger('main')
 
 
 @app.errorhandler(werkzeug.exceptions.HTTPException)
-def error_404(error:werkzeug.exceptions.HTTPException):
+def http_errorhandler(error:werkzeug.exceptions.HTTPException):
     return (
         json.dumps({
             'status': 'error',
-            'payload': {'status_code':error.code, 'message':error.description}
+            'payload': {
+                'status_code':error.code,
+                'message':error.description
+            }
         }).encode('utf-8'),
         error.code,
         {'Content-Type': 'application/json; charset=utf-8'}
     )
 
 
-def main():
-    ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
+def configure(config_file:str):
     logging.basicConfig(format='%(asctime)s :[%(levelname)s] %(name)s: %(message)s', level=logging.INFO)
 
-    with open(ROOT_PATH+'/config.yaml', 'r') as f:
-        config = yaml.load(f)
+    with open(config_file, 'r') as f:
+        config = yaml.load(os.path.expandvars(f.read()))
 
     # Instantiate services
     app.config['services'] = {
@@ -43,6 +45,13 @@ def main():
 
     # Register endpoints
     endpoints.register(app)
+
+    return config
+
+
+def main():
+    ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
+    configure(ROOT_PATH+'/config.yaml')
 
     # Run server
     try:
