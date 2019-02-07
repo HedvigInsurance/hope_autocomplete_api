@@ -2,34 +2,18 @@ from gevent import monkey; monkey.patch_all()
 
 import os
 import yaml
-import json
 import logging
-import werkzeug.exceptions
 
-from flask import Flask
+import connexion
 from gevent import pywsgi
 
 import auto_complete_api.services as services
-import auto_complete_api.endpoints as endpoints
 
 
-app = Flask('autocomplete_api')
+SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
+
 logger = logging.getLogger('main')
-
-
-@app.errorhandler(werkzeug.exceptions.HTTPException)
-def http_errorhandler(error:werkzeug.exceptions.HTTPException):
-    return (
-        json.dumps({
-            'status': 'error',
-            'payload': {
-                'status_code':error.code,
-                'message':error.description
-            }
-        }).encode('utf-8'),
-        error.code,
-        {'Content-Type': 'application/json; charset=utf-8'}
-    )
+cnx_app = connexion.FlaskApp('autocomplete_api')
 
 
 def configure(config_file:str):
@@ -39,30 +23,29 @@ def configure(config_file:str):
         config = yaml.load(os.path.expandvars(f.read()))
 
     # Instantiate services
-    app.config['services'] = {
+    flask = cnx_app.app
+    flask.config['services'] = {
         'elasticsearch': services.ElasticSearch(**config['elasticsearch'])
     }
 
     # Register endpoints
-    endpoints.register(app)
+    cnx_app.add_api(SCRIPT_PATH+'/api_spec.yaml')
 
     return config
 
 
 def main():
-    ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
-    configure(ROOT_PATH+'/config.yaml')
+    configure(SCRIPT_PATH + '/config.yaml')
 
     # Run server
+    logger.info('Service starting')
     try:
-        logger.info('Service starting')
-
-        app.config['services']['elasticsearch'].wait_for_cluster(30)
-        app.config['services']['elasticsearch'].create_index()
+        cnx_app.app.config['services']['elasticsearch'].wait_for_cluster(30)
+        cnx_app.app.config['services']['elasticsearch'].create_index()
 
         logger.info('Service started')
 
-        server = pywsgi.WSGIServer(('0.0.0.0', 5000), app)
+        server = pywsgi.WSGIServer(('0.0.0.0', 5000), cnx_app.app)
         server.serve_forever()
     except KeyboardInterrupt:
         logger.info('Caught CTRL+C')

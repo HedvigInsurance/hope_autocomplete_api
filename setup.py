@@ -14,7 +14,7 @@ setup(
         'elasticsearch==6.3.1',
         'elasticsearch-dsl==6.3.1',
         'emoji==0.5.1',
-        'Flask==1.0.2',
+        'connexion[swagger-ui]==2.2.0',
         'gevent==1.4.0',
         'nltk==3.4',
         'pyyaml==4.2b2',
@@ -26,7 +26,7 @@ setup(
     },
 
     package_data={
-        'auto_complete_api': ['config.yaml'],
+        'auto_complete_api': ['config.yaml', 'api_spec.yaml'],
     },
 
     entry_points={

@@ -1,0 +1,92 @@
+swagger: "2.0"
+info:
+  description: This is the swagger file that goes with our server code
+  version: "1.0.0"
+  title: Swagger REST Article
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+
+basePath: "/"
+
+# Paths supported by the server application
+paths:
+  /v0/messages/:
+    post:
+      operationId: "auto_complete_api.endpoints.messages.add"
+      tags:
+        - "messages"
+      description: "Add more documents to the service"
+      parameters:
+        - in: body
+          description: The messages to add to index
+          required: true
+          name: messages
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        default:
+          description: OK
+
+  /v0/messages/autocomplete:
+    get:
+      operationId: "auto_complete_api.endpoints.messages.autocomplete_get"
+      tags:
+        - "messages"
+      description: "Returns the autocomplete options for a query"
+      parameters:
+          - name: query
+            in: query
+            required: true
+            type: string
+      responses:
+        200:
+          description: "Successful read people list operation"
+          schema:
+          #$ref: '#/components/schemas/AutocompleteSuggestions'
+            type: "array"
+            items:
+                type: object
+                properties:
+                  text:
+                    type: string
+                  score:
+                    type: number
+
+    post:
+      operationId: "auto_complete_api.endpoints.messages.autocomplete_post"
+      tags:
+        - "messages"
+      description: "Add more documents to the service"
+      parameters:
+        - in: body
+          description: The messages to add to index
+          required: true
+          name: action
+          schema:
+            type: object
+            properties:
+              autocomplete_query:
+                type: string
+              autcomplete_response:
+                type: "array"
+                items:
+                    type: object
+                    properties:
+                      text:
+                        type: string
+                      score:
+                        type: number
+              submitted_response:
+                type: string
+              user_messages:
+                type: array
+                items:
+                  type: string
+
+      responses:
+        default:
+          description: OK
