@@ -81,11 +81,23 @@ paths:
                       score:
                         type: number
               submitted_response:
-                type: string
+                  type: object
+                  properties:
+                    timestamp:
+                      type: integer
+                    text:
+                      type: string
               user_messages:
-                type: array
+                type: "array"
                 items:
-                  type: string
+                    type: object
+                    properties:
+                      timestamp:
+                        type: integer
+                      author_type:
+                        type: string
+                      text:
+                        type: string
 
       responses:
         default:
