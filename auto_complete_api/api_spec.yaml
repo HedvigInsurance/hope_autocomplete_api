@@ -87,7 +87,7 @@ paths:
                       type: integer
                     text:
                       type: string
-              user_messages:
+              chat_history:
                 type: "array"
                 items:
                     type: object
