@@ -1,8 +1,7 @@
 swagger: "2.0"
 info:
-  description: This is the swagger file that goes with our server code
   version: "1.0.0"
-  title: Swagger REST Article
+  title: HOPE Autocomplete API
 consumes:
   - "application/json"
 produces:
@@ -42,11 +41,11 @@ paths:
             in: query
             required: true
             type: string
+            description: The query on which autocomplete results should be returned
       responses:
         200:
-          description: "Successful read people list operation"
+          description: "List of autocomplete options"
           schema:
-          #$ref: '#/components/schemas/AutocompleteSuggestions'
             type: "array"
             items:
                 type: object
@@ -60,18 +59,20 @@ paths:
       operationId: "auto_complete_api.endpoints.messages.autocomplete_post"
       tags:
         - "messages"
-      description: "Add more documents to the service"
+      description: "Logs the user action based on an previous autocomplete query"
       parameters:
         - in: body
-          description: The messages to add to index
+          description: User action data
           required: true
           name: action
           schema:
             type: object
             properties:
               autocomplete_query:
+                description: The last query sent to the autocomplete endpoint
                 type: string
               autcomplete_response:
+                description: The response returned from the last call to the autocomplete query
                 type: "array"
                 items:
                     type: object
@@ -81,22 +82,30 @@ paths:
                       score:
                         type: number
               submitted_response:
+                  description: The actual message sent to the user after the last autcomplete query
                   type: object
                   properties:
                     timestamp:
+                      description: The UNIX timestamp at the time the message was submitted
                       type: integer
                     text:
+                      description: The message content
                       type: string
               chat_history:
+                description: The last ~25 messages in the chat history, not including the submitted reply
                 type: "array"
                 items:
                     type: object
                     properties:
                       timestamp:
+                        description: The UNIX timestamp at the time the message was submitted
                         type: integer
                       author_type:
+                        description: Author type (bot/user/admin)
                         type: string
+                        enum: ['bot', 'user', 'admin']
                       text:
+                        description: The message content
                         type: string
 
       responses:
