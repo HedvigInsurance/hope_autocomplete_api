@@ -6,9 +6,9 @@ from auto_complete_api.services import ElasticSearch
 logger = logging.getLogger('api.messages')
 
 
-def add(messages: List[str]) -> None:
+def add(body: List[str]) -> None:
     service:ElasticSearch = app.config['services']['elasticsearch']
-    service.add(messages)
+    service.add(body)
 
 
 def autocomplete_get(query: str) -> Dict[str, float]:
@@ -16,5 +16,8 @@ def autocomplete_get(query: str) -> Dict[str, float]:
     return service.autocomplete(query)
 
 
-def autocomplete_post(action: str) -> None:
-    logger.info('User action: {}'.format(action))
+def autocomplete_post(body: str) -> None:
+    service: ElasticSearch = app.config['services']['elasticsearch']
+    submitted_message = body['submitted_response']['text']
+    service.add([submitted_message])
+    logger.info('User action: {}'.format(body))

@@ -1,113 +1,139 @@
-swagger: "2.0"
+openapi: 3.0.0
+
 info:
-  version: "1.0.0"
+  version: 1.0.0
   title: HOPE Autocomplete API
-consumes:
-  - "application/json"
-produces:
-  - "application/json"
 
-basePath: "/"
+servers:
+  - url: /
 
-# Paths supported by the server application
 paths:
   /v0/messages/:
     post:
-      operationId: "auto_complete_api.endpoints.messages.add"
+      operationId: auto_complete_api.endpoints.messages.add
       tags:
-        - "messages"
-      description: "Add more documents to the service"
-      parameters:
-        - in: body
-          description: The messages to add to index
-          required: true
-          name: messages
-          schema:
-            type: array
-            items:
-              type: string
+        - messages
+      description: Add more documents to the service
+      requestBody:
+        required: true
+        description: The messages to add to index
+        x-body-name: messages
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
       responses:
         default:
           description: OK
 
   /v0/messages/autocomplete:
     get:
-      operationId: "auto_complete_api.endpoints.messages.autocomplete_get"
+      operationId: auto_complete_api.endpoints.messages.autocomplete_get
       tags:
-        - "messages"
-      description: "Returns the autocomplete options for a query"
+        - messages
+      description: Returns the autocomplete options for a query
       parameters:
-          - name: query
-            in: query
-            required: true
-            type: string
-            description: The query on which autocomplete results should be returned
-      responses:
-        200:
-          description: "List of autocomplete options"
+        - name: query
+          in: query
+          required: true
+          description: The query on which autocomplete results should be returned
           schema:
-            type: "array"
-            items:
-                type: object
-                properties:
-                  text:
-                    type: string
-                  score:
-                    type: number
+            type: string
+      responses:
+        "200":
+          description: List of autocomplete options
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AutoCompleteSuggestion'
 
     post:
-      operationId: "auto_complete_api.endpoints.messages.autocomplete_post"
+      operationId: auto_complete_api.endpoints.messages.autocomplete_post
       tags:
-        - "messages"
-      description: "Logs the user action based on an previous autocomplete query"
-      parameters:
-        - in: body
-          description: User action data
-          required: true
-          name: action
-          schema:
-            type: object
-            properties:
-              autocomplete_query:
-                description: The last query sent to the autocomplete endpoint
-                type: string
-              autcomplete_response:
-                description: The response returned from the last call to the autocomplete query
-                type: "array"
-                items:
-                    type: object
-                    properties:
-                      text:
-                        type: string
-                      score:
-                        type: number
-              submitted_response:
-                  description: The actual message sent to the user after the last autcomplete query
-                  type: object
-                  properties:
-                    timestamp:
-                      description: The UNIX timestamp at the time the message was submitted
-                      type: integer
-                    text:
-                      description: The message content
-                      type: string
-              chat_history:
-                description: The last ~25 messages in the chat history, not including the submitted reply
-                type: "array"
-                items:
-                    type: object
-                    properties:
-                      timestamp:
-                        description: The UNIX timestamp at the time the message was submitted
-                        type: integer
-                      author_type:
-                        description: Author type (bot/user/admin)
-                        type: string
-                        enum: ['bot', 'user', 'admin']
-                      text:
-                        description: The message content
-                        type: string
+        - messages
+      description: Logs the user action based on an previous autocomplete query
+      requestBody:
+        required: true
+        description: User action data
+        x-body-name: action
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AutoCompleteUserAction'
 
       responses:
         default:
           description: OK
+
+components:
+  schemas:
+    AutoCompleteSuggestion:
+      type: object
+      required:
+        - text
+        - score
+
+      properties:
+        text:
+          type: string
+        score:
+          type: number
+
+    ChatMessage:
+      type: object
+      required:
+        - timestamp
+        - author_type
+        - text
+
+      properties:
+        timestamp:
+          description: The UNIX timestamp at the time the message was
+            submitted
+          type: integer
+        author_type:
+          description: Author type (bot/user/admin)
+          type: string
+          enum:
+            - bot
+            - user
+            - admin
+        text:
+          description: The message content
+          type: string
+
+    AutoCompleteUserAction:
+      type: object
+      required:
+        - autocomplete_query
+        - autocomplete_response
+        - submitted_response
+        - chat_history
+
+      properties:
+        autocomplete_query:
+          description: The last query sent to the autocomplete endpoint
+          type: string
+
+        autocomplete_response:
+          description: The response returned from the last call to the autocomplete
+            query
+          type: array
+          items:
+            $ref: '#/components/schemas/AutoCompleteSuggestion'
+
+        submitted_response:
+          description: The actual message sent to the user after the last
+            autcomplete query
+          $ref: '#/components/schemas/ChatMessage'
+
+        chat_history:
+          description: The last ~25 messages in the chat history, not including the
+            submitted reply
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
