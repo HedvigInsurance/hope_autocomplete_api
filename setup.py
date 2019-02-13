@@ -18,7 +18,9 @@ setup(
         'gevent==1.4.0',
         'nltk==3.4',
         'pyyaml==4.2b2',
-        'certifi==2018.11.29'
+        'certifi==2018.11.29',
+        'sqlalchemy==1.2.17',
+        'psycopg2-binary==2.7.7'
     ],
     extras_require={
         'dev': [],

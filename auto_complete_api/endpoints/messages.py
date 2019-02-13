@@ -1,23 +1,28 @@
 import logging
 from typing import Dict, List
 from flask import current_app as app
-from auto_complete_api.services import ElasticSearch
+from auto_complete_api.services import ELASTICSEARCH, USERACTIONLOG
+from auto_complete_api.services import ElasticSearchService, UserActionLogService
 
 logger = logging.getLogger('api.messages')
 
 
 def add(body: List[str]) -> None:
-    service:ElasticSearch = app.config['services']['elasticsearch']
+    service:ElasticSearchService = app.config['services'][ELASTICSEARCH]
     service.add(body)
 
 
 def autocomplete_get(query: str) -> Dict[str, float]:
-    service:ElasticSearch = app.config['services']['elasticsearch']
+    service:ElasticSearchService = app.config['services'][ELASTICSEARCH]
     return service.autocomplete(query)
 
 
 def autocomplete_post(body: str) -> None:
-    service: ElasticSearch = app.config['services']['elasticsearch']
+    es: ElasticSearchService = app.config['services'][ELASTICSEARCH]
+    action_log: UserActionLogService = app.config['services'][USERACTIONLOG]
+
     submitted_message = body['submitted_response']['text']
-    service.add([submitted_message])
-    logger.info('User action: {}'.format(body))
+
+    es.add([submitted_message])
+    action_log.persist(**body)
+

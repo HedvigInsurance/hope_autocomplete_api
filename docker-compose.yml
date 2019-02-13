@@ -5,13 +5,24 @@ services:
     ports:
      - "5000:5000"
     depends_on:
+      - db
       - elasticsearch
     restart: always
     environment:
       - "ELASTICSEARCH_HOSTS=['elasticsearch']"
+      - "PG_HOST=db:5432"
+      - "PG_USER=postgres"
+      - "PG_PWD=NrGpLuPd35fZ"
+      - "PG_DB=postgres"
 
   elasticsearch:
     image: "docker.elastic.co/elasticsearch/elasticsearch:6.6.0"
     environment:
        - "discovery.type=single-node"
     restart: always
+
+  db:
+    image: "postgres:11-alpine"
+    restart: always
+    environment:
+      - "POSTGRES_PASSWORD=NrGpLuPd35fZ"

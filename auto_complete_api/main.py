@@ -17,7 +17,10 @@ cnx_app = connexion.FlaskApp('autocomplete_api')
 
 
 def configure(config_file:str):
-    logging.basicConfig(format='%(asctime)s :[%(levelname)s] %(name)s: %(message)s', level=logging.INFO)
+    logging.basicConfig(
+        format='%(asctime)s :[%(levelname)s] %(name)s: %(message)s',
+        level=logging.INFO
+    )
 
     with open(config_file, 'r') as f:
         config = yaml.load(os.path.expandvars(f.read()))
@@ -25,7 +28,8 @@ def configure(config_file:str):
     # Instantiate services
     flask = cnx_app.app
     flask.config['services'] = {
-        'elasticsearch': services.ElasticSearch(**config['elasticsearch'])
+        services.ELASTICSEARCH: services.ElasticSearchService(**config['elasticsearch']),
+        services.USERACTIONLOG: services.UserActionLogService(**config['postgres'])
     }
 
     # Register endpoints
@@ -40,8 +44,8 @@ def main():
     # Run server
     logger.info('Service starting')
     try:
-        cnx_app.app.config['services']['elasticsearch'].wait_for_cluster(30)
-        cnx_app.app.config['services']['elasticsearch'].create_index()
+        cnx_app.app.config['services'][services.ELASTICSEARCH].wait_for_cluster(30)
+        cnx_app.app.config['services'][services.ELASTICSEARCH].create_index()
 
         logger.info('Service started')
 

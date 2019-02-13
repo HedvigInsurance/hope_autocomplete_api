@@ -17,7 +17,6 @@ paths:
       requestBody:
         required: true
         description: The messages to add to index
-        x-body-name: messages
         content:
           application/json:
             schema:
@@ -59,7 +58,6 @@ paths:
       requestBody:
         required: true
         description: User action data
-        x-body-name: action
         content:
           application/json:
             schema:
@@ -94,7 +92,7 @@ components:
         timestamp:
           description: The UNIX timestamp at the time the message was
             submitted
-          type: integer
+          type: number
         author_type:
           description: Author type (bot/user/admin)
           type: string

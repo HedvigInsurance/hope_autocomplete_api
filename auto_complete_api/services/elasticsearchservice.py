@@ -27,7 +27,7 @@ def sentence_split(text:str):
     )
 
 
-class ElasticSearch(object):
+class ElasticSearchService(object):
     def __init__(self, hosts, index):
         self._index = index
         self._client = elasticsearch.Elasticsearch(
