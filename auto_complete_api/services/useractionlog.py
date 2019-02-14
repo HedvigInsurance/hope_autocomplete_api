@@ -49,7 +49,7 @@ class UserActionLogService(object):
             chat_history=chat_history
         )
 
-        logging.info('Serializing action to DB')
+        logger.info('Serializing action to DB')
         session: Session = self._create_session()
         session.add(action)
         session.flush()
