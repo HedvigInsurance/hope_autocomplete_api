@@ -9,7 +9,7 @@ services:
       - elasticsearch
     restart: always
     environment:
-      - "ELASTICSEARCH_HOSTS=['elasticsearch']"
+      - "ELASTICSEARCH_HOSTS='elasticsearch'"
       - "PG_HOST=db:5432"
       - "PG_USER=postgres"
       - "PG_PWD=NrGpLuPd35fZ"

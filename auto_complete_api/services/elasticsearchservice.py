@@ -29,13 +29,14 @@ def sentence_split(text:str):
 
 class ElasticSearchService(object):
     def __init__(self, hosts, index):
+        hosts_array = hosts.strip().split(',')
         self._index = index
         self._client = elasticsearch.Elasticsearch(
-            hosts=hosts,
-            use_ssl='https' in ','.join(hosts),
+            hosts=hosts_array,
+            use_ssl='https' in hosts,
             ca_certs=certifi.where()
         )
-        logger.info('Using the following hosts: {}'.format(', '.join(hosts)))
+        logger.info('Using the following hosts: {}'.format(', '.join(hosts_array)))
 
     def wait_for_cluster(self, timeout=10):
         level = logging.getLogger('elasticsearch').level
