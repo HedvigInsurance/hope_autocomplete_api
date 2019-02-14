@@ -26,7 +26,7 @@ class AutoCompleteActionEntity(Base):
 class UserActionLogService(object):
     def __init__(self, db_uri):
         self._db_usi = db_uri
-        logger.info('Initializing DB connection pool: {}'.format(db_uri))
+        logger.info('Initializing DB connection pool')
         self._engine = create_engine(db_uri)
         self._create_session = sessionmaker(bind=self._engine)
 
